@@ -23,8 +23,8 @@ function App() {
         onTodayClick={handleTodayClick}
       />
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <main className="max-w-4xl mx-auto px-2 py-3 sm:px-4 sm:py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
           {/* Calendar */}
           <div className="lg:col-span-1">
             <Calendar

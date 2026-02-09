@@ -56,10 +56,10 @@ export function DayView({ date }: DayViewProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-center gap-2 text-gray-500">
           <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Loading readings...</span>
+          <span>Loading...</span>
         </div>
       </div>
     );
@@ -67,7 +67,7 @@ export function DayView({ date }: DayViewProps) {
 
   if (error) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-center gap-2 text-red-500">
           <AlertCircle className="w-5 h-5" />
           <span>{error}</span>
@@ -77,21 +77,21 @@ export function DayView({ date }: DayViewProps) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 sm:p-4">
       {/* Date Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
-          {format(date, 'EEEE, MMMM d, yyyy')}
+      <div className="mb-3 flex items-center gap-2 flex-wrap">
+        <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+          {format(date, 'EEE, MMM d')}
         </h2>
         {isToday(date) && (
-          <span className="inline-block mt-1 text-sm font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+          <span className="text-xs font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
             Today
           </span>
         )}
       </div>
 
       {/* Readings List */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {SESSIONS.map((session, index) => {
           const reading = getReadingBySession(session);
           const sessionRetests = getRetestsAfterSession(index);
@@ -110,7 +110,7 @@ export function DayView({ date }: DayViewProps) {
 
               {/* Retests Positioned After This Session */}
               {sessionRetests.map((retest) => (
-                <div key={retest.id} className="mt-2 ml-6">
+                <div key={retest.id} className="mt-1.5 ml-3">
                   <RetestCard
                     retest={retest}
                     onDelete={() => deleteRetest(retest.id)}
@@ -130,32 +130,14 @@ export function DayView({ date }: DayViewProps) {
       {/* Add Retest Button */}
       <AddRetestButton onAddRetest={addRetest} />
 
-      {/* Legend */}
-      <div className="mt-8 pt-6 border-t border-gray-100">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-          Color Legend
-        </h4>
-        <div className="flex flex-wrap gap-3 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-blue-400" />
-            <span className="text-gray-600">Severe Low (&lt;55)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-orange-400" />
-            <span className="text-gray-600">Low (55-69)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-green-400" />
-            <span className="text-gray-600">Normal</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-yellow-400" />
-            <span className="text-gray-600">Elevated</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-400" />
-            <span className="text-gray-600">High (≥200)</span>
-          </div>
+      {/* Legend - Compact on mobile */}
+      <div className="mt-4 pt-3 border-t border-gray-100">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-400" />Severe Low</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400" />Low</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-400" />Normal</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400" />Elevated</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-400" />High</span>
         </div>
       </div>
     </div>

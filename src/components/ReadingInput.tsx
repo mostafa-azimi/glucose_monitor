@@ -63,80 +63,84 @@ export function ReadingInput({
   return (
     <div
       className={`
-        p-4 rounded-lg border-2 transition-all
+        px-3 py-2 rounded-lg border-2 transition-all
         ${colorConfig.bgColor} ${colorConfig.borderColor}
       `}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="font-medium text-gray-900">{session}</h3>
-            {status !== 'none' && (
-              <span
-                className={`
-                  text-xs font-medium px-2 py-0.5 rounded-full
-                  ${colorConfig.bgColor} ${colorConfig.textColor}
-                `}
-              >
-                {colorConfig.label}
-              </span>
-            )}
-            {saving && (
-              <span className="text-xs text-gray-400">Saving...</span>
-            )}
-          </div>
+      <div className="flex items-center justify-between gap-2">
+        {/* Session name */}
+        <span className="text-sm font-medium text-gray-900 min-w-0 truncate flex-shrink">
+          {session}
+        </span>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={reading}
-                onChange={(e) => setReading(e.target.value)}
-                onBlur={handleBlur}
-                placeholder="--"
-                disabled={disabled}
-                className={`
-                  w-20 px-2 py-2 text-lg font-semibold text-center
-                  border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500
-                  ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-                `}
-                min="0"
-                max="600"
-              />
-              <span className="text-sm text-gray-500">mg/dL</span>
-            </div>
+        {/* Status badge */}
+        {status !== 'none' && (
+          <span
+            className={`
+              text-xs font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0
+              ${colorConfig.bgColor} ${colorConfig.textColor}
+            `}
+          >
+            {colorConfig.label}
+          </span>
+        )}
 
-            <button
-              onClick={() => setShowNotes(!showNotes)}
-              className={`
-                p-2 rounded-lg transition-colors
-                ${showNotes || notes ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}
-              `}
-              title="Add notes"
-            >
-              <MessageSquare className="w-4 h-4" />
-            </button>
-          </div>
+        {saving && (
+          <span className="text-xs text-gray-400 flex-shrink-0">Saving...</span>
+        )}
 
-          {showNotes && (
-            <div className="mt-3">
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                onBlur={handleBlur}
-                placeholder="Add notes..."
-                disabled={disabled}
-                className={`
-                  w-full px-3 py-2 text-sm border rounded-lg resize-none
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                  ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
-                `}
-                rows={2}
-              />
-            </div>
-          )}
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Input + unit */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <input
+            type="number"
+            value={reading}
+            onChange={(e) => setReading(e.target.value)}
+            onBlur={handleBlur}
+            placeholder="--"
+            disabled={disabled}
+            className={`
+              w-16 px-2 py-1 text-base font-semibold text-center
+              border rounded focus:outline-none focus:ring-2 focus:ring-blue-500
+              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+            `}
+            min="0"
+            max="600"
+          />
+          <span className="text-xs text-gray-500">mg/dL</span>
         </div>
+
+        {/* Notes button */}
+        <button
+          onClick={() => setShowNotes(!showNotes)}
+          className={`
+            p-1.5 rounded transition-colors flex-shrink-0
+            ${showNotes || notes ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}
+          `}
+          title="Add notes"
+        >
+          <MessageSquare className="w-4 h-4" />
+        </button>
       </div>
+
+      {showNotes && (
+        <div className="mt-2">
+          <input
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={handleBlur}
+            placeholder="Add notes..."
+            disabled={disabled}
+            className={`
+              w-full px-2 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500
+              ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
+            `}
+          />
+        </div>
+      )}
     </div>
   );
 }

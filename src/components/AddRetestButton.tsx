@@ -31,59 +31,49 @@ export function AddRetestButton({ onAddRetest }: AddRetestButtonProps) {
     return (
       <button
         onClick={() => setIsAdding(true)}
-        className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border-2 border-dashed border-blue-200"
+        className="mt-3 w-full flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg active:bg-blue-100 transition-colors border-2 border-dashed border-blue-200"
       >
-        <Plus className="w-5 h-5" />
+        <Plus className="w-4 h-4" />
         Add Retest
       </button>
     );
   }
 
   return (
-    <div className="mt-4 bg-gray-50 rounded-lg p-4 border border-gray-200">
-      <div className="flex items-start gap-3">
-        <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1">
-            Reading
-          </label>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              value={newReading}
-              onChange={(e) => setNewReading(e.target.value)}
-              placeholder="--"
-              className="w-20 px-2 py-2 text-lg font-semibold text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-              min="0"
-              max="600"
-              autoFocus
-            />
-            <span className="text-sm text-gray-500">mg/dL</span>
-          </div>
-        </div>
-        <div className="flex-1">
-          <label className="block text-xs font-medium text-gray-500 mb-1">
-            Notes (optional)
-          </label>
+    <div className="mt-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <input
-            type="text"
-            value={newNotes}
-            onChange={(e) => setNewNotes(e.target.value)}
-            placeholder="e.g., 15 min after juice"
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            type="number"
+            value={newReading}
+            onChange={(e) => setNewReading(e.target.value)}
+            placeholder="--"
+            className="w-16 px-2 py-1.5 text-base font-semibold text-center border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            min="0"
+            max="600"
+            autoFocus
           />
+          <span className="text-xs text-gray-500">mg/dL</span>
         </div>
+        <input
+          type="text"
+          value={newNotes}
+          onChange={(e) => setNewNotes(e.target.value)}
+          placeholder="Notes (optional)"
+          className="flex-1 min-w-0 px-2 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        />
       </div>
-      <div className="flex items-center gap-2 mt-3">
+      <div className="flex items-center gap-2 mt-2">
         <button
           onClick={handleAdd}
           disabled={!newReading || saving}
           className={`
-            px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg
-            hover:bg-blue-700 transition-colors
-            ${(!newReading || saving) ? 'opacity-50 cursor-not-allowed' : ''}
+            flex-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded
+            active:bg-blue-700 transition-colors
+            ${(!newReading || saving) ? 'opacity-50' : ''}
           `}
         >
-          {saving ? 'Saving...' : 'Save Retest'}
+          {saving ? 'Saving...' : 'Save'}
         </button>
         <button
           onClick={() => {
@@ -91,14 +81,11 @@ export function AddRetestButton({ onAddRetest }: AddRetestButtonProps) {
             setNewReading('');
             setNewNotes('');
           }}
-          className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-200 rounded active:bg-gray-300 transition-colors"
         >
           Cancel
         </button>
       </div>
-      <p className="text-xs text-gray-400 mt-2">
-        After adding, use the up/down arrows to position it between sessions
-      </p>
     </div>
   );
 }
