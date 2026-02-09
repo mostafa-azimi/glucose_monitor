@@ -134,26 +134,29 @@ export function useReadings(date: string) {
     }
   };
 
-  // Update retest position
+  // Update retest position (optimistic update - instant UI, then sync to DB)
   const updateRetestPosition = async (id: string, position: number) => {
+    // Optimistic update - update UI immediately
+    setRetests((prev) => 
+      prev.map((r) => (r.id === id ? { ...r, position } : r))
+        .sort((a, b) => a.position - b.position)
+    );
+
+    // Then sync to database in background
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('glucose_retests')
         .update({ position })
-        .eq('id', id)
-        .select()
-        .single();
+        .eq('id', id);
 
-      if (error) throw error;
-
-      setRetests((prev) => 
-        prev.map((r) => (r.id === id ? { ...r, position } : r))
-          .sort((a, b) => a.position - b.position)
-      );
-      return data;
+      if (error) {
+        // Revert on error - refetch from DB
+        console.error('Error updating retest position:', error);
+        fetchReadings();
+      }
     } catch (err) {
       console.error('Error updating retest position:', err);
-      throw err;
+      fetchReadings(); // Revert by refetching
     }
   };
 
