@@ -27,10 +27,16 @@ export function RetestCard({
     }
   };
 
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', retest.id);
+    onDragStart();
+  };
+
   return (
     <div
       draggable
-      onDragStart={onDragStart}
+      onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       className={`
         flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-grab active:cursor-grabbing
