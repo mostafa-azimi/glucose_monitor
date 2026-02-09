@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SessionType } from '../types';
+import type { SessionType } from '../types';
 import { getHealthStatus, getColorConfig } from '../utils/colorCoding';
 import { MessageSquare } from 'lucide-react';
 

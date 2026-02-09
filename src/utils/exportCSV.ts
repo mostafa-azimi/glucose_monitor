@@ -1,4 +1,4 @@
-import { GlucoseReading, GlucoseRetest } from '../types';
+import type { GlucoseReading, GlucoseRetest } from '../types';
 import { format } from 'date-fns';
 import { getHealthStatus, getRetestHealthStatus, getColorConfig } from './colorCoding';
 

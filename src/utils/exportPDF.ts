@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { GlucoseReading, GlucoseRetest } from '../types';
+import type { GlucoseReading, GlucoseRetest } from '../types';
 import { format } from 'date-fns';
 import { getHealthStatus, getRetestHealthStatus, getColorConfig } from './colorCoding';
 
@@ -32,7 +32,8 @@ export function exportToPDF(
   doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy h:mm a')}`, 14, 40);
 
   // Prepare table data
-  const tableData: (string | { content: string; styles: { fillColor: number[] } })[][] = [];
+  type TableRow = (string | { content: string; styles: { fillColor: [number, number, number] } })[];
+  const tableData: TableRow[] = [];
 
   // Combine and sort readings and retests by date
   const allEntries: {
@@ -40,7 +41,7 @@ export function exportToPDF(
     session: string;
     reading: number;
     status: string;
-    statusColor: number[];
+    statusColor: [number, number, number];
     notes: string;
     sortKey: string;
   }[] = [];
@@ -119,7 +120,7 @@ export function exportToPDF(
     didParseCell: (data) => {
       // Apply status colors
       if (data.column.index === 3 && data.section === 'body') {
-        const cellData = data.cell.raw as { styles?: { fillColor: number[] } };
+        const cellData = data.cell.raw as { styles?: { fillColor: [number, number, number] } };
         if (cellData && typeof cellData === 'object' && cellData.styles?.fillColor) {
           data.cell.styles.fillColor = cellData.styles.fillColor;
           data.cell.styles.textColor = [255, 255, 255];
@@ -137,7 +138,7 @@ export function exportToPDF(
     doc.setTextColor(100, 100, 100);
     doc.text('Legend:', 14, finalY + 15);
 
-    const legends = [
+    const legends: { label: string; color: [number, number, number] }[] = [
       { label: 'Severe Low (<55)', color: [59, 130, 246] },
       { label: 'Low (55-69)', color: [251, 146, 60] },
       { label: 'Normal', color: [34, 197, 94] },
@@ -159,7 +160,7 @@ export function exportToPDF(
   doc.save(`${filename}.pdf`);
 }
 
-function getStatusRGB(status: string): number[] {
+function getStatusRGB(status: string): [number, number, number] {
   switch (status) {
     case 'severe-low':
       return [59, 130, 246]; // Blue

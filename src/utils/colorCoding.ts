@@ -1,4 +1,4 @@
-import { SessionType, HealthStatus, ColorConfig } from '../types';
+import type { SessionType, HealthStatus, ColorConfig } from '../types';
 
 type SessionCategory = 'fasting' | 'pre-meal' | 'post-meal';
 

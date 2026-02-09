@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Plus, Trash2, Clock } from 'lucide-react';
-import { GlucoseRetest } from '../types';
+import type { GlucoseRetest } from '../types';
 import { getRetestHealthStatus, getColorConfig } from '../utils/colorCoding';
 
 interface RetestSectionProps {

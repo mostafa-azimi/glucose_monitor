@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { GlucoseReading, GlucoseRetest, SessionType, SESSIONS } from '../types';
+import type { GlucoseReading, GlucoseRetest, SessionType } from '../types';
+import { SESSIONS } from '../types';
 
 export function useReadings(date: string) {
   const [readings, setReadings] = useState<GlucoseReading[]>([]);

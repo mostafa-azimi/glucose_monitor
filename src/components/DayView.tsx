@@ -2,7 +2,7 @@ import { format, isToday } from 'date-fns';
 import { useReadings } from '../hooks/useReadings';
 import { ReadingInput } from './ReadingInput';
 import { RetestSection } from './RetestSection';
-import { SessionType } from '../types';
+import type { SessionType } from '../types';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 interface DayViewProps {
