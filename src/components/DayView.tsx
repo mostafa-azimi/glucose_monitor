@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { format, isToday } from 'date-fns';
 import { useReadings } from '../hooks/useReadings';
 import { ReadingInput } from './ReadingInput';
@@ -25,43 +24,12 @@ export function DayView({ date }: DayViewProps) {
     deleteRetest 
   } = useReadings(dateStr);
 
-  const [draggedRetest, setDraggedRetest] = useState<string | null>(null);
-  const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
-
   const handleSaveReading = async (
     session: SessionType,
     reading: number | null,
     notes: string | null
   ) => {
     await saveReading(session, reading, notes);
-  };
-
-  const handleDragStart = (retestId: string) => {
-    setDraggedRetest(retestId);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedRetest(null);
-    setDragOverPosition(null);
-  };
-
-  const handleDragOver = (e: React.DragEvent, position: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverPosition(position);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverPosition(null);
-  };
-
-  const handleDrop = async (e: React.DragEvent, position: number) => {
-    e.preventDefault();
-    if (draggedRetest) {
-      await updateRetestPosition(draggedRetest, position);
-    }
-    setDraggedRetest(null);
-    setDragOverPosition(null);
   };
 
   const getReadingBySession = (session: SessionType) => {
@@ -71,6 +39,18 @@ export function DayView({ date }: DayViewProps) {
   // Get retests for a specific position (after session at index)
   const getRetestsAfterSession = (sessionIndex: number) => {
     return retests.filter(r => r.position === sessionIndex);
+  };
+
+  const handleMoveUp = (retestId: string, currentPosition: number) => {
+    if (currentPosition > 0) {
+      updateRetestPosition(retestId, currentPosition - 1);
+    }
+  };
+
+  const handleMoveDown = (retestId: string, currentPosition: number) => {
+    if (currentPosition < 6) {
+      updateRetestPosition(retestId, currentPosition + 1);
+    }
   };
 
   if (loading) {
@@ -95,17 +75,6 @@ export function DayView({ date }: DayViewProps) {
     );
   }
 
-  // Session names for drop zone labels
-  const sessionLabels = [
-    'Fasting',
-    'Pre-Lunch', 
-    '1-Hr Post-Lunch',
-    '2-Hr Post-Lunch',
-    'Pre-Dinner',
-    'Bedtime',
-    'Overnight'
-  ];
-
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       {/* Date Header */}
@@ -118,19 +87,13 @@ export function DayView({ date }: DayViewProps) {
             Today
           </span>
         )}
-        {draggedRetest && (
-          <p className="text-xs text-blue-500 mt-2 font-medium">
-            Drop between sessions to reposition
-          </p>
-        )}
       </div>
 
-      {/* Readings List with Drop Zones */}
-      <div className="space-y-1">
+      {/* Readings List */}
+      <div className="space-y-3">
         {SESSIONS.map((session, index) => {
           const reading = getReadingBySession(session);
           const sessionRetests = getRetestsAfterSession(index);
-          const isDropActive = draggedRetest && dragOverPosition === index;
           
           return (
             <div key={session}>
@@ -143,34 +106,17 @@ export function DayView({ date }: DayViewProps) {
                   onSave={(r, n) => handleSaveReading(reading.session, r, n)}
                 />
               )}
-              
-              {/* Drop Zone After This Session */}
-              <div
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, index)}
-                className={`
-                  transition-all duration-200 rounded-lg mx-2 my-1
-                  ${draggedRetest ? 'min-h-[40px] border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center' : 'h-1'}
-                  ${isDropActive ? 'min-h-[60px] bg-blue-100 border-blue-400 border-2' : ''}
-                `}
-              >
-                {draggedRetest && (
-                  <span className={`text-xs ${isDropActive ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
-                    {isDropActive ? `Drop here (after ${sessionLabels[index]})` : `After ${sessionLabels[index]}`}
-                  </span>
-                )}
-              </div>
 
               {/* Retests Positioned After This Session */}
               {sessionRetests.map((retest) => (
-                <div key={retest.id} className="ml-4">
+                <div key={retest.id} className="mt-2 ml-6">
                   <RetestCard
                     retest={retest}
                     onDelete={() => deleteRetest(retest.id)}
-                    onDragStart={() => handleDragStart(retest.id)}
-                    onDragEnd={handleDragEnd}
-                    isDragging={draggedRetest === retest.id}
+                    onMoveUp={() => handleMoveUp(retest.id, retest.position)}
+                    onMoveDown={() => handleMoveDown(retest.id, retest.position)}
+                    canMoveUp={retest.position > 0}
+                    canMoveDown={retest.position < 6}
                   />
                 </div>
               ))}

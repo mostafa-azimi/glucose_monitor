@@ -87,7 +87,7 @@ export function ReadingInput({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="flex items-center gap-2">
               <input
                 type="number"
                 value={reading}
@@ -96,16 +96,14 @@ export function ReadingInput({
                 placeholder="--"
                 disabled={disabled}
                 className={`
-                  w-24 px-3 py-2 text-lg font-semibold text-center
+                  w-20 px-2 py-2 text-lg font-semibold text-center
                   border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500
                   ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
                 `}
                 min="0"
                 max="600"
               />
-              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-                mg/dL
-              </span>
+              <span className="text-sm text-gray-500">mg/dL</span>
             </div>
 
             <button

@@ -1,22 +1,24 @@
 import { format } from 'date-fns';
-import { GripVertical, Trash2, Clock } from 'lucide-react';
+import { Trash2, Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import type { GlucoseRetest } from '../types';
 import { getRetestHealthStatus, getColorConfig } from '../utils/colorCoding';
 
 interface RetestCardProps {
   retest: GlucoseRetest;
   onDelete: () => void;
-  onDragStart: () => void;
-  onDragEnd: () => void;
-  isDragging: boolean;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 }
 
 export function RetestCard({ 
   retest, 
   onDelete, 
-  onDragStart, 
-  onDragEnd,
-  isDragging 
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: RetestCardProps) {
   const status = getRetestHealthStatus(retest.reading);
   const colorConfig = getColorConfig(status);
@@ -27,26 +29,31 @@ export function RetestCard({
     }
   };
 
-  const handleDragStart = (e: React.DragEvent) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', retest.id);
-    onDragStart();
-  };
-
   return (
     <div
-      draggable
-      onDragStart={handleDragStart}
-      onDragEnd={onDragEnd}
       className={`
-        flex items-center gap-3 p-3 rounded-lg border-2 transition-all cursor-grab active:cursor-grabbing
+        flex items-center gap-3 p-3 rounded-lg border-2 transition-all
         ${colorConfig.bgColor} ${colorConfig.borderColor}
-        ${isDragging ? 'opacity-50 scale-95' : 'opacity-100'}
       `}
     >
-      {/* Drag Handle */}
-      <div className="text-gray-400 hover:text-gray-600">
-        <GripVertical className="w-5 h-5" />
+      {/* Move Buttons */}
+      <div className="flex flex-col gap-0.5">
+        <button
+          onClick={onMoveUp}
+          disabled={!canMoveUp}
+          className={`p-0.5 rounded transition-colors ${canMoveUp ? 'text-gray-500 hover:text-blue-600 hover:bg-blue-50' : 'text-gray-300 cursor-not-allowed'}`}
+          title="Move up"
+        >
+          <ChevronUp className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onMoveDown}
+          disabled={!canMoveDown}
+          className={`p-0.5 rounded transition-colors ${canMoveDown ? 'text-gray-500 hover:text-blue-600 hover:bg-blue-50' : 'text-gray-300 cursor-not-allowed'}`}
+          title="Move down"
+        >
+          <ChevronDown className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Retest Badge */}
@@ -63,7 +70,7 @@ export function RetestCard({
       {/* Reading */}
       <span className="text-lg font-semibold text-gray-900">
         {retest.reading}
-        <span className="text-xs font-normal text-gray-500 ml-1">mg/dL</span>
+        <span className="text-sm font-normal text-gray-500 ml-1">mg/dL</span>
       </span>
 
       {/* Status */}
