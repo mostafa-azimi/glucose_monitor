@@ -46,20 +46,18 @@ export function AddRetestButton({ onAddRetest }: AddRetestButtonProps) {
           <label className="block text-xs font-medium text-gray-500 mb-1">
             Reading
           </label>
-          <div className="relative">
+          <div className="flex items-center gap-2">
             <input
               type="number"
               value={newReading}
               onChange={(e) => setNewReading(e.target.value)}
               placeholder="--"
-              className="w-24 px-3 py-2 text-lg font-semibold text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-20 px-2 py-2 text-lg font-semibold text-center border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
               min="0"
               max="600"
               autoFocus
             />
-            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-              mg/dL
-            </span>
+            <span className="text-sm text-gray-500">mg/dL</span>
           </div>
         </div>
         <div className="flex-1">
@@ -99,7 +97,7 @@ export function AddRetestButton({ onAddRetest }: AddRetestButtonProps) {
         </button>
       </div>
       <p className="text-xs text-gray-400 mt-2">
-        After adding, drag the retest to position it between sessions
+        After adding, use the up/down arrows to position it between sessions
       </p>
     </div>
   );

@@ -160,6 +160,29 @@ export function useReadings(date: string) {
     }
   };
 
+  // Update retest notes (optimistic update)
+  const updateRetestNotes = async (id: string, notes: string | null) => {
+    // Optimistic update
+    setRetests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, notes } : r))
+    );
+
+    try {
+      const { error } = await supabase
+        .from('glucose_retests')
+        .update({ notes })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating retest notes:', error);
+        fetchReadings();
+      }
+    } catch (err) {
+      console.error('Error updating retest notes:', err);
+      fetchReadings();
+    }
+  };
+
   // Delete a retest
   const deleteRetest = async (id: string) => {
     try {
@@ -185,6 +208,7 @@ export function useReadings(date: string) {
     saveReading,
     addRetest,
     updateRetestPosition,
+    updateRetestNotes,
     deleteRetest,
     refresh: fetchReadings,
   };

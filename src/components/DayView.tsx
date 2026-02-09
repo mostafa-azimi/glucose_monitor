@@ -21,6 +21,7 @@ export function DayView({ date }: DayViewProps) {
     saveReading, 
     addRetest,
     updateRetestPosition,
+    updateRetestNotes,
     deleteRetest 
   } = useReadings(dateStr);
 
@@ -115,6 +116,7 @@ export function DayView({ date }: DayViewProps) {
                     onDelete={() => deleteRetest(retest.id)}
                     onMoveUp={() => handleMoveUp(retest.id, retest.position)}
                     onMoveDown={() => handleMoveDown(retest.id, retest.position)}
+                    onUpdateNotes={(notes) => updateRetestNotes(retest.id, notes)}
                     canMoveUp={retest.position > 0}
                     canMoveDown={retest.position < 6}
                   />
