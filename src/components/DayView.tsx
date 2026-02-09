@@ -1,20 +1,16 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { format, isToday } from 'date-fns';
 import { useReadings } from '../hooks/useReadings';
 import { ReadingInput } from './ReadingInput';
 import { RetestCard } from './RetestCard';
 import { AddRetestButton } from './AddRetestButton';
 import type { SessionType, GlucoseRetest } from '../types';
+import { SESSIONS } from '../types';
 import { Loader2, AlertCircle } from 'lucide-react';
 
 interface DayViewProps {
   date: Date;
 }
-
-type DayEntry = 
-  | { type: 'reading'; session: SessionType; position: number }
-  | { type: 'retest'; data: GlucoseRetest; position: number }
-  | { type: 'drop-zone'; position: number };
 
 export function DayView({ date }: DayViewProps) {
   const dateStr = format(date, 'yyyy-MM-dd');
@@ -40,36 +36,6 @@ export function DayView({ date }: DayViewProps) {
     await saveReading(session, reading, notes);
   };
 
-  // Build unified list with drop zones between each session
-  const entries = useMemo(() => {
-    const result: DayEntry[] = [];
-    
-    readings.forEach((reading, index) => {
-      // Add drop zone before this session
-      result.push({ type: 'drop-zone', position: index });
-      
-      // Add the reading
-      result.push({ type: 'reading', session: reading.session, position: index });
-      
-      // Add retests that belong after this session
-      const sessionRetests = retests.filter(r => r.position === index);
-      sessionRetests.forEach(retest => {
-        result.push({ type: 'retest', data: retest, position: index });
-      });
-    });
-    
-    // Final drop zone after all sessions
-    result.push({ type: 'drop-zone', position: 7 });
-    
-    // Add retests at the end (position 7 or higher)
-    const endRetests = retests.filter(r => r.position >= 7);
-    endRetests.forEach(retest => {
-      result.push({ type: 'retest', data: retest, position: retest.position });
-    });
-
-    return result;
-  }, [readings, retests]);
-
   const handleDragStart = (retestId: string) => {
     setDraggedRetest(retestId);
   };
@@ -81,7 +47,12 @@ export function DayView({ date }: DayViewProps) {
 
   const handleDragOver = (e: React.DragEvent, position: number) => {
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
     setDragOverPosition(position);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverPosition(null);
   };
 
   const handleDrop = async (e: React.DragEvent, position: number) => {
@@ -95,6 +66,11 @@ export function DayView({ date }: DayViewProps) {
 
   const getReadingBySession = (session: SessionType) => {
     return readings.find(r => r.session === session);
+  };
+
+  // Get retests for a specific position (after session at index)
+  const getRetestsAfterSession = (sessionIndex: number) => {
+    return retests.filter(r => r.position === sessionIndex);
   };
 
   if (loading) {
@@ -119,6 +95,17 @@ export function DayView({ date }: DayViewProps) {
     );
   }
 
+  // Session names for drop zone labels
+  const sessionLabels = [
+    'Fasting',
+    'Pre-Lunch', 
+    '1-Hr Post-Lunch',
+    '2-Hr Post-Lunch',
+    'Pre-Dinner',
+    'Bedtime',
+    'Overnight'
+  ];
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       {/* Date Header */}
@@ -131,59 +118,64 @@ export function DayView({ date }: DayViewProps) {
             Today
           </span>
         )}
-        <p className="text-xs text-gray-400 mt-2">
-          Drag retests to reorder them between sessions
-        </p>
+        {draggedRetest && (
+          <p className="text-xs text-blue-500 mt-2 font-medium">
+            Drop between sessions to reposition
+          </p>
+        )}
       </div>
 
-      {/* Unified Readings List */}
-      <div className="space-y-2">
-        {entries.map((entry, idx) => {
-          if (entry.type === 'drop-zone') {
-            const isActive = draggedRetest && dragOverPosition === entry.position;
-            return (
+      {/* Readings List with Drop Zones */}
+      <div className="space-y-1">
+        {SESSIONS.map((session, index) => {
+          const reading = getReadingBySession(session);
+          const sessionRetests = getRetestsAfterSession(index);
+          const isDropActive = draggedRetest && dragOverPosition === index;
+          
+          return (
+            <div key={session}>
+              {/* The Session Reading */}
+              {reading && (
+                <ReadingInput
+                  session={reading.session}
+                  reading={reading.reading}
+                  notes={reading.notes}
+                  onSave={(r, n) => handleSaveReading(reading.session, r, n)}
+                />
+              )}
+              
+              {/* Drop Zone After This Session */}
               <div
-                key={`drop-${entry.position}-${idx}`}
-                onDragOver={(e) => handleDragOver(e, entry.position)}
-                onDrop={(e) => handleDrop(e, entry.position)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
                 className={`
-                  transition-all duration-200 rounded-lg
-                  ${draggedRetest ? 'h-3 my-1' : 'h-0'}
-                  ${isActive ? 'h-16 bg-blue-100 border-2 border-dashed border-blue-400' : ''}
+                  transition-all duration-200 rounded-lg mx-2 my-1
+                  ${draggedRetest ? 'min-h-[40px] border-2 border-dashed border-gray-300 bg-gray-50 flex items-center justify-center' : 'h-1'}
+                  ${isDropActive ? 'min-h-[60px] bg-blue-100 border-blue-400 border-2' : ''}
                 `}
-              />
-            );
-          }
-          
-          if (entry.type === 'reading') {
-            const reading = getReadingBySession(entry.session);
-            if (!reading) return null;
-            
-            return (
-              <ReadingInput
-                key={reading.session}
-                session={reading.session}
-                reading={reading.reading}
-                notes={reading.notes}
-                onSave={(r, n) => handleSaveReading(reading.session, r, n)}
-              />
-            );
-          }
-          
-          if (entry.type === 'retest') {
-            return (
-              <RetestCard
-                key={entry.data.id}
-                retest={entry.data}
-                onDelete={() => deleteRetest(entry.data.id)}
-                onDragStart={() => handleDragStart(entry.data.id)}
-                onDragEnd={handleDragEnd}
-                isDragging={draggedRetest === entry.data.id}
-              />
-            );
-          }
-          
-          return null;
+              >
+                {draggedRetest && (
+                  <span className={`text-xs ${isDropActive ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+                    {isDropActive ? `Drop here (after ${sessionLabels[index]})` : `After ${sessionLabels[index]}`}
+                  </span>
+                )}
+              </div>
+
+              {/* Retests Positioned After This Session */}
+              {sessionRetests.map((retest) => (
+                <div key={retest.id} className="ml-4">
+                  <RetestCard
+                    retest={retest}
+                    onDelete={() => deleteRetest(retest.id)}
+                    onDragStart={() => handleDragStart(retest.id)}
+                    onDragEnd={handleDragEnd}
+                    isDragging={draggedRetest === retest.id}
+                  />
+                </div>
+              ))}
+            </div>
+          );
         })}
       </div>
 
