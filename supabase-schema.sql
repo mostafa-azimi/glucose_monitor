@@ -28,8 +28,12 @@ CREATE TABLE IF NOT EXISTS glucose_retests (
   date DATE NOT NULL,
   reading INTEGER NOT NULL,
   notes TEXT,
-  recorded_at TIMESTAMPTZ DEFAULT NOW()
+  recorded_at TIMESTAMPTZ DEFAULT NOW(),
+  position INTEGER DEFAULT 7 -- Position in day sequence (0-13, default after all sessions)
 );
+
+-- To add position column to existing table:
+-- ALTER TABLE glucose_retests ADD COLUMN IF NOT EXISTS position INTEGER DEFAULT 7;
 
 -- ============================================
 -- INDEXES

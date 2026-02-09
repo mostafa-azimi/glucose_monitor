@@ -110,7 +110,7 @@ export function useReadings(date: string) {
   };
 
   // Add a retest
-  const addRetest = async (reading: number, notes: string | null) => {
+  const addRetest = async (reading: number, notes: string | null, position: number = 7) => {
     try {
       const { data, error } = await supabase
         .from('glucose_retests')
@@ -119,16 +119,40 @@ export function useReadings(date: string) {
           reading,
           notes,
           recorded_at: new Date().toISOString(),
+          position,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      setRetests((prev) => [...prev, data]);
+      setRetests((prev) => [...prev, data].sort((a, b) => a.position - b.position));
       return data;
     } catch (err) {
       console.error('Error adding retest:', err);
+      throw err;
+    }
+  };
+
+  // Update retest position
+  const updateRetestPosition = async (id: string, position: number) => {
+    try {
+      const { data, error } = await supabase
+        .from('glucose_retests')
+        .update({ position })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setRetests((prev) => 
+        prev.map((r) => (r.id === id ? { ...r, position } : r))
+          .sort((a, b) => a.position - b.position)
+      );
+      return data;
+    } catch (err) {
+      console.error('Error updating retest position:', err);
       throw err;
     }
   };
@@ -157,6 +181,7 @@ export function useReadings(date: string) {
     error,
     saveReading,
     addRetest,
+    updateRetestPosition,
     deleteRetest,
     refresh: fetchReadings,
   };

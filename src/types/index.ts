@@ -33,7 +33,13 @@ export interface GlucoseRetest {
   reading: number;
   notes: string | null;
   recorded_at: string;
+  position: number; // Position in the day's sequence (0-13, where 0-6 are after each session)
 }
+
+// Combined entry type for unified display
+export type DayEntry = 
+  | { type: 'reading'; data: GlucoseReading; position: number }
+  | { type: 'retest'; data: GlucoseRetest; position: number };
 
 export type HealthStatus = 'severe-low' | 'low' | 'normal' | 'elevated' | 'high' | 'none';
 
