@@ -4,7 +4,7 @@ import { useReadings } from '../hooks/useReadings';
 import { ReadingInput } from './ReadingInput';
 import { RetestCard } from './RetestCard';
 import { AddRetestButton } from './AddRetestButton';
-import type { SessionType, GlucoseRetest } from '../types';
+import type { SessionType } from '../types';
 import { SESSIONS } from '../types';
 import { Loader2, AlertCircle } from 'lucide-react';
 
