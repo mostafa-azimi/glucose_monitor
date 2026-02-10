@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { format } from 'date-fns';
 import type { SessionType } from '../types';
 import { getHealthStatus, getColorConfig } from '../utils/colorCoding';
 import { MessageSquare } from 'lucide-react';
@@ -7,6 +8,7 @@ interface ReadingInputProps {
   session: SessionType;
   reading: number | null;
   notes: string | null;
+  updatedAt: string | null;
   onSave: (reading: number | null, notes: string | null) => Promise<void>;
   disabled?: boolean;
 }
@@ -15,6 +17,7 @@ export function ReadingInput({
   session, 
   reading: initialReading, 
   notes: initialNotes, 
+  updatedAt,
   onSave,
   disabled = false,
 }: ReadingInputProps) {
@@ -68,10 +71,17 @@ export function ReadingInput({
       `}
     >
       <div className="flex items-center justify-between gap-2">
-        {/* Session name */}
-        <span className="text-sm font-medium text-gray-900 min-w-0 truncate flex-shrink">
-          {session}
-        </span>
+        {/* Session name + timestamp */}
+        <div className="min-w-0 flex-shrink">
+          <span className="text-sm font-medium text-gray-900 truncate block">
+            {session}
+          </span>
+          {updatedAt && initialReading !== null && (
+            <span className="text-[10px] text-gray-400">
+              {format(new Date(updatedAt), 'h:mm a')}
+            </span>
+          )}
+        </div>
 
         {/* Status badge */}
         {status !== 'none' && (

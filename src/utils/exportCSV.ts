@@ -10,7 +10,7 @@ export function exportToCSV(
   const rows: string[][] = [];
 
   // Header row
-  rows.push(['Date', 'Session/Time', 'Reading (mg/dL)', 'Status', 'Notes']);
+  rows.push(['Date', 'Session/Type', 'Time Entered', 'Reading (mg/dL)', 'Status', 'Notes']);
 
   // Add readings
   readings.forEach((reading) => {
@@ -20,6 +20,7 @@ export function exportToCSV(
       rows.push([
         reading.date,
         reading.session,
+        format(new Date(reading.updated_at), 'h:mm a'),
         String(reading.reading),
         colorConfig.label || 'N/A',
         reading.notes || '',
@@ -33,7 +34,8 @@ export function exportToCSV(
     const colorConfig = getColorConfig(status);
     rows.push([
       retest.date,
-      `Retest @ ${format(new Date(retest.recorded_at), 'h:mm a')}`,
+      'Retest',
+      format(new Date(retest.recorded_at), 'h:mm a'),
       String(retest.reading),
       colorConfig.label || 'N/A',
       retest.notes || '',

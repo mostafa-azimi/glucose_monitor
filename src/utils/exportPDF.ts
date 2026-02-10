@@ -39,6 +39,7 @@ export function exportToPDF(
   const allEntries: {
     date: string;
     session: string;
+    time: string;
     reading: number;
     status: string;
     statusColor: [number, number, number];
@@ -53,11 +54,12 @@ export function exportToPDF(
       allEntries.push({
         date: r.date,
         session: r.session,
+        time: format(new Date(r.updated_at), 'h:mm a'),
         reading: r.reading,
         status: colorConfig.label || '',
         statusColor: getStatusRGB(status),
         notes: r.notes || '',
-        sortKey: `${r.date}-${r.created_at}`,
+        sortKey: `${r.date}-${r.updated_at}`,
       });
     }
   });
@@ -67,7 +69,8 @@ export function exportToPDF(
     const colorConfig = getColorConfig(status);
     allEntries.push({
       date: r.date,
-      session: `Retest @ ${format(new Date(r.recorded_at), 'h:mm a')}`,
+      session: 'Retest',
+      time: format(new Date(r.recorded_at), 'h:mm a'),
       reading: r.reading,
       status: colorConfig.label || '',
       statusColor: getStatusRGB(status),
@@ -82,8 +85,9 @@ export function exportToPDF(
   // Convert to table rows
   allEntries.forEach((entry) => {
     tableData.push([
-      format(new Date(entry.date), 'MMM d, yyyy'),
+      format(new Date(entry.date), 'MMM d'),
       entry.session,
+      entry.time,
       String(entry.reading),
       {
         content: entry.status,
@@ -96,7 +100,7 @@ export function exportToPDF(
   // Add table
   autoTable(doc, {
     startY: 48,
-    head: [['Date', 'Session', 'Reading (mg/dL)', 'Status', 'Notes']],
+    head: [['Date', 'Session', 'Time', 'Reading', 'Status', 'Notes']],
     body: tableData,
     headStyles: {
       fillColor: [59, 130, 246],
@@ -107,19 +111,20 @@ export function exportToPDF(
       fillColor: [248, 250, 252],
     },
     columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 40 },
-      2: { cellWidth: 25, halign: 'center' },
-      3: { cellWidth: 25, halign: 'center' },
-      4: { cellWidth: 'auto' },
+      0: { cellWidth: 22 },
+      1: { cellWidth: 32 },
+      2: { cellWidth: 20 },
+      3: { cellWidth: 18, halign: 'center' },
+      4: { cellWidth: 22, halign: 'center' },
+      5: { cellWidth: 'auto' },
     },
     styles: {
       fontSize: 9,
       cellPadding: 3,
     },
     didParseCell: (data) => {
-      // Apply status colors
-      if (data.column.index === 3 && data.section === 'body') {
+      // Apply status colors (column 4 is now Status)
+      if (data.column.index === 4 && data.section === 'body') {
         const cellData = data.cell.raw as { styles?: { fillColor: [number, number, number] } };
         if (cellData && typeof cellData === 'object' && cellData.styles?.fillColor) {
           data.cell.styles.fillColor = cellData.styles.fillColor;

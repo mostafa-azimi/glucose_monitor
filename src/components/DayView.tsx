@@ -104,6 +104,7 @@ export function DayView({ date }: DayViewProps) {
                   session={reading.session}
                   reading={reading.reading}
                   notes={reading.notes}
+                  updatedAt={reading.updated_at}
                   onSave={(r, n) => handleSaveReading(reading.session, r, n)}
                 />
               )}
