@@ -4,16 +4,29 @@ import { Calendar } from './components/Calendar';
 import { DayView } from './components/DayView';
 import { ExportModal } from './components/ExportModal';
 
+// Get the "effective" date - if before 5am, use yesterday
+function getEffectiveDate(): Date {
+  const now = new Date();
+  const hour = now.getHours();
+  if (hour < 5) {
+    // Before 5am, show yesterday
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday;
+  }
+  return now;
+}
+
 function App() {
-  const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [currentMonth, setCurrentMonth] = useState(today);
+  const effectiveToday = getEffectiveDate();
+  const [selectedDate, setSelectedDate] = useState(effectiveToday);
+  const [currentMonth, setCurrentMonth] = useState(effectiveToday);
   const [showExportModal, setShowExportModal] = useState(false);
 
   const handleTodayClick = () => {
-    const today = new Date();
-    setSelectedDate(today);
-    setCurrentMonth(today);
+    const effectiveToday = getEffectiveDate();
+    setSelectedDate(effectiveToday);
+    setCurrentMonth(effectiveToday);
   };
 
   return (

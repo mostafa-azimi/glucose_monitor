@@ -160,6 +160,53 @@ export function useReadings(date: string) {
     }
   };
 
+  // Update reading timestamp
+  const updateReadingTime = async (session: SessionType, newTime: string) => {
+    // Optimistic update
+    setReadings((prev) =>
+      prev.map((r) => (r.session === session ? { ...r, updated_at: newTime } : r))
+    );
+
+    try {
+      const { error } = await supabase
+        .from('glucose_readings')
+        .update({ updated_at: newTime })
+        .eq('date', date)
+        .eq('session', session);
+
+      if (error) {
+        console.error('Error updating reading time:', error);
+        fetchReadings();
+      }
+    } catch (err) {
+      console.error('Error updating reading time:', err);
+      fetchReadings();
+    }
+  };
+
+  // Update retest time
+  const updateRetestTime = async (id: string, newTime: string) => {
+    // Optimistic update
+    setRetests((prev) =>
+      prev.map((r) => (r.id === id ? { ...r, recorded_at: newTime } : r))
+    );
+
+    try {
+      const { error } = await supabase
+        .from('glucose_retests')
+        .update({ recorded_at: newTime })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error updating retest time:', error);
+        fetchReadings();
+      }
+    } catch (err) {
+      console.error('Error updating retest time:', err);
+      fetchReadings();
+    }
+  };
+
   // Update retest notes (optimistic update)
   const updateRetestNotes = async (id: string, notes: string | null) => {
     // Optimistic update
@@ -207,7 +254,9 @@ export function useReadings(date: string) {
     error,
     saveReading,
     addRetest,
+    updateReadingTime,
     updateRetestPosition,
+    updateRetestTime,
     updateRetestNotes,
     deleteRetest,
     refresh: fetchReadings,

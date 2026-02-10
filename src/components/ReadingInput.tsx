@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { format } from 'date-fns';
+import { format, parse, setHours, setMinutes } from 'date-fns';
 import type { SessionType } from '../types';
 import { getHealthStatus, getColorConfig } from '../utils/colorCoding';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Clock } from 'lucide-react';
 
 interface ReadingInputProps {
   session: SessionType;
@@ -10,6 +10,7 @@ interface ReadingInputProps {
   notes: string | null;
   updatedAt: string | null;
   onSave: (reading: number | null, notes: string | null) => Promise<void>;
+  onUpdateTime?: (newTime: string) => void;
   disabled?: boolean;
 }
 
@@ -19,6 +20,7 @@ export function ReadingInput({
   notes: initialNotes, 
   updatedAt,
   onSave,
+  onUpdateTime,
   disabled = false,
 }: ReadingInputProps) {
   const [reading, setReading] = useState<string>(
@@ -26,6 +28,8 @@ export function ReadingInput({
   );
   const [notes, setNotes] = useState<string>(initialNotes || '');
   const [showNotes, setShowNotes] = useState(!!initialNotes);
+  const [showTimeEdit, setShowTimeEdit] = useState(false);
+  const [timeValue, setTimeValue] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Update local state when props change
@@ -33,7 +37,10 @@ export function ReadingInput({
     setReading(initialReading !== null ? String(initialReading) : '');
     setNotes(initialNotes || '');
     setShowNotes(!!initialNotes);
-  }, [initialReading, initialNotes]);
+    if (updatedAt) {
+      setTimeValue(format(new Date(updatedAt), 'HH:mm'));
+    }
+  }, [initialReading, initialNotes, updatedAt]);
 
   const readingValue = reading ? parseInt(reading, 10) : null;
   const status = getHealthStatus(readingValue, session);
@@ -63,6 +70,22 @@ export function ReadingInput({
     handleSave();
   };
 
+  const handleTimeChange = (newTimeStr: string) => {
+    setTimeValue(newTimeStr);
+  };
+
+  const handleTimeSave = () => {
+    if (onUpdateTime && updatedAt && timeValue) {
+      // Parse the time and combine with the original date
+      const originalDate = new Date(updatedAt);
+      const [hours, minutes] = timeValue.split(':').map(Number);
+      let newDate = setHours(originalDate, hours);
+      newDate = setMinutes(newDate, minutes);
+      onUpdateTime(newDate.toISOString());
+    }
+    setShowTimeEdit(false);
+  };
+
   return (
     <div
       className={`
@@ -76,10 +99,38 @@ export function ReadingInput({
           <span className="text-sm font-medium text-gray-900 truncate block">
             {session}
           </span>
-          {updatedAt && initialReading !== null && (
-            <span className="text-[10px] text-gray-400">
+          {updatedAt && initialReading !== null && !showTimeEdit && (
+            <button
+              onClick={() => setShowTimeEdit(true)}
+              className="text-[10px] text-gray-400 hover:text-blue-500 flex items-center gap-0.5"
+              title="Click to edit time"
+            >
+              <Clock className="w-2.5 h-2.5" />
               {format(new Date(updatedAt), 'h:mm a')}
-            </span>
+            </button>
+          )}
+          {showTimeEdit && (
+            <div className="flex items-center gap-1 mt-0.5">
+              <input
+                type="time"
+                value={timeValue}
+                onChange={(e) => handleTimeChange(e.target.value)}
+                className="text-xs px-1 py-0.5 border rounded w-20"
+                autoFocus
+              />
+              <button
+                onClick={handleTimeSave}
+                className="text-[10px] text-blue-600 font-medium"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setShowTimeEdit(false)}
+                className="text-[10px] text-gray-400"
+              >
+                Cancel
+              </button>
+            </div>
           )}
         </div>
 

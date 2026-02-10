@@ -20,7 +20,9 @@ export function DayView({ date }: DayViewProps) {
     error, 
     saveReading, 
     addRetest,
+    updateReadingTime,
     updateRetestPosition,
+    updateRetestTime,
     updateRetestNotes,
     deleteRetest 
   } = useReadings(dateStr);
@@ -106,6 +108,7 @@ export function DayView({ date }: DayViewProps) {
                   notes={reading.notes}
                   updatedAt={reading.updated_at}
                   onSave={(r, n) => handleSaveReading(reading.session, r, n)}
+                  onUpdateTime={(newTime) => updateReadingTime(reading.session, newTime)}
                 />
               )}
 
@@ -118,6 +121,7 @@ export function DayView({ date }: DayViewProps) {
                     onMoveUp={() => handleMoveUp(retest.id, retest.position)}
                     onMoveDown={() => handleMoveDown(retest.id, retest.position)}
                     onUpdateNotes={(notes) => updateRetestNotes(retest.id, notes)}
+                    onUpdateTime={(newTime) => updateRetestTime(retest.id, newTime)}
                     canMoveUp={retest.position > 0}
                     canMoveDown={retest.position < 6}
                   />

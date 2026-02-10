@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
+import { format, setHours, setMinutes } from 'date-fns';
 import { Trash2, Clock, ChevronUp, ChevronDown, MessageSquare } from 'lucide-react';
 import type { GlucoseRetest } from '../types';
 import { getRetestHealthStatus, getColorConfig } from '../utils/colorCoding';
@@ -10,6 +10,7 @@ interface RetestCardProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onUpdateNotes: (notes: string | null) => void;
+  onUpdateTime: (newTime: string) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
 }
@@ -20,14 +21,22 @@ export function RetestCard({
   onMoveUp,
   onMoveDown,
   onUpdateNotes,
+  onUpdateTime,
   canMoveUp,
   canMoveDown,
 }: RetestCardProps) {
   const [showNotes, setShowNotes] = useState(!!retest.notes);
   const [notes, setNotes] = useState(retest.notes || '');
+  const [showTimeEdit, setShowTimeEdit] = useState(false);
+  const [timeValue, setTimeValue] = useState(format(new Date(retest.recorded_at), 'HH:mm'));
   
   const status = getRetestHealthStatus(retest.reading);
   const colorConfig = getColorConfig(status);
+
+  useEffect(() => {
+    setNotes(retest.notes || '');
+    setTimeValue(format(new Date(retest.recorded_at), 'HH:mm'));
+  }, [retest.notes, retest.recorded_at]);
 
   const handleDelete = () => {
     if (confirm('Delete this retest?')) {
@@ -40,6 +49,17 @@ export function RetestCard({
     if (trimmedNotes !== retest.notes) {
       onUpdateNotes(trimmedNotes);
     }
+  };
+
+  const handleTimeSave = () => {
+    if (timeValue) {
+      const originalDate = new Date(retest.recorded_at);
+      const [hours, minutes] = timeValue.split(':').map(Number);
+      let newDate = setHours(originalDate, hours);
+      newDate = setMinutes(newDate, minutes);
+      onUpdateTime(newDate.toISOString());
+    }
+    setShowTimeEdit(false);
   };
 
   return (
@@ -74,10 +94,32 @@ export function RetestCard({
           <span className="hidden xs:inline">Retest</span>
         </div>
 
-        {/* Time */}
-        <span className="text-xs text-gray-500">
-          {format(new Date(retest.recorded_at), 'h:mm a')}
-        </span>
+        {/* Time - clickable to edit */}
+        {!showTimeEdit ? (
+          <button
+            onClick={() => setShowTimeEdit(true)}
+            className="text-xs text-gray-500 hover:text-blue-500"
+            title="Click to edit time"
+          >
+            {format(new Date(retest.recorded_at), 'h:mm a')}
+          </button>
+        ) : (
+          <div className="flex items-center gap-1">
+            <input
+              type="time"
+              value={timeValue}
+              onChange={(e) => setTimeValue(e.target.value)}
+              className="text-xs px-1 py-0.5 border rounded w-20"
+              autoFocus
+            />
+            <button
+              onClick={handleTimeSave}
+              className="text-[10px] text-blue-600 font-medium"
+            >
+              OK
+            </button>
+          </div>
+        )}
 
         {/* Reading */}
         <span className="text-base font-semibold text-gray-900">
