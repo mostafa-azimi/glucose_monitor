@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { format, parse, setHours, setMinutes } from 'date-fns';
+import { format, setHours, setMinutes } from 'date-fns';
 import type { SessionType } from '../types';
 import { getHealthStatus, getColorConfig } from '../utils/colorCoding';
 import { MessageSquare, Clock } from 'lucide-react';
